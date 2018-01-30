@@ -1,7 +1,15 @@
-div {
+body > div {
   width:60px;
   height: 60px;
   float: left;
   margin: 1px;
 }
 /* You can add global styles to this file, and also import other style files */
+polygon, path {
+  transform-origin: center;
+  cursor: pointer;
+}
+
+polygon:hover, path:hover {
+  transform: scale(1.05);
+}
