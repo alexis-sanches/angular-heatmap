@@ -17,8 +17,8 @@ export class D3Service {
      */
 
     public init(options: any, element: any, length: number = 10) {
-        this.element = d3.select(element);
-        this.svg = this.element.append(`div`).html(options.svg).select(`svg`);
+        this.element = d3.select(element).append(`div`).attr(`style`, `display: flex; align-items: flex-start`);
+        this.svg = this.element.html(options.svg).select(`svg`).attr(`width`, `70%`);
 
         this.createScale(options.colors, length);
         this.setData(options.data);
@@ -78,7 +78,7 @@ export class D3Service {
      */
 
     public setData(data: IHeatmapOptions[], length: number = 10) {
-        const table = this.element.append(`table`).attr(`class`, `legend`);
+        const table = this.element.append(`table`).attr(`style`, `margin-left: 40px; border-spacing: 15px 10px`);
         const values = data.map((it) => it.value);
         const th = table.append(`tr`);
 
@@ -87,7 +87,7 @@ export class D3Service {
 
         for (let i = 0; i < data.length; i++) {
             const tr = table.append(`tr`);
-            const j = (data[i].value - Math.min(...values)) / (Math.max(...values) - Math.min(...values)) * length;
+            const j = (data[i].value / (Math.max(...values)) * length);
 
             this.svg.select(`#${data[i].id}`)
                 .attr(`style`, `fill: ${this.scale(j)}`)
@@ -95,8 +95,15 @@ export class D3Service {
                     this.selectDetector.next(data[i]);
                 });
 
-            tr.append(`td`).text(data[i].value).attr(`style`, `background-color: ${this.scale(j)}`);
-            tr.append(`td`).text(data[i].title);
+            tr.append(`td`)
+                .append(`div`)
+                .attr(`style`, `width: 140px; height: 20px; display: flex; justify-content: flex-end;`)
+                .append(`div`)
+                .attr(`style`, `width: ${Math.round(j * 10)}%; background-color: ${this.scale(j)}; text-align: right;`)
+                .text(data[i].value);
+
+            tr.append(`td`)
+                .text(data[i].title);
         }
     }
 }

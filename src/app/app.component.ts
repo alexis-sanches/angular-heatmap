@@ -140,7 +140,8 @@ export class AppComponent {
 	/>
 </svg>`;
 
-    public colors: string[] = ['#407bd8', '#5fe29f'];
+    // public colors: string[] = ['#407bd8', '#5fe29f'];
+    public colors: string[] = ['black', 'white'];
 
     public data: IHeatmapOptions[] = [
         {
