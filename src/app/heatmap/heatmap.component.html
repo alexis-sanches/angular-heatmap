@@ -6,7 +6,7 @@
             <th>Количество</th>
         </tr>
 
-        <tr [attr.class]="item.id" *ngFor="let item of _options.data">
+        <tr [attr.class]="'row_' + item.id" *ngFor="let item of _data">
             <td>{{ item.title }}</td>
             <td>
                 <div class="item">

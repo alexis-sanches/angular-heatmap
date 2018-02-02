@@ -13,14 +13,32 @@ export interface IHeatmapOptions {
     styleUrls: ['./heatmap.component.less']
 })
 export class HeatmapComponent implements AfterViewInit {
-    public _options;
+    public _data;
+    public _svg;
 
     @Input()
-    set options(options: object) {
-        if (options) {
-            this._options = options;
+    set svg(svg: string) {
+        if (svg) {
+            this.d3.setSvg(this.el.nativeElement, svg);
+            this._svg = svg;
         }
     }
+
+    @Input()
+    set colors(colors: string[]) {
+        if (colors) {
+            this.d3.createScale(colors);
+        }
+    }
+
+    @Input()
+    set data(data: IHeatmapOptions[]) {
+        if (data) {
+            this._data = data;
+            this.d3.setData(data);
+        }
+    }
+
 
     @Output() select: EventEmitter<IHeatmapOptions> = new EventEmitter();
 

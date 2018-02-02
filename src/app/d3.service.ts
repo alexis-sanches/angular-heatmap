@@ -5,7 +5,7 @@ import {IHeatmapOptions} from './heatmap/heatmap.component';
 @Injectable()
 export class D3Service {
     private element: any;
-    private svg: any;
+    public svg: any;
     private scale: any;
     private sortByTitle = true;
     private isAsc = true;
@@ -17,14 +17,6 @@ export class D3Service {
      * @param element
      * @param {number} length
      */
-
-    public init(options: any, element: any, length: number = 10) {
-        this.element = d3.select(element).select(`.heatmap`);
-        this.svg = this.element.select(`.container`).html(options.svg).select(`svg`);
-
-        this.createScale(options.colors, length);
-        this.setData(options.data);
-    }
 
     /**
      *
@@ -52,6 +44,7 @@ export class D3Service {
      */
 
     private appendScale(): void {
+        console.log(this.svg);
         const g = this.svg.append(`g`);
 
         g.append(`text`)
@@ -80,12 +73,12 @@ export class D3Service {
      */
 
     public setData(data: IHeatmapOptions[], length: number = 10) {
-        const legend = {
-            title: `Название`,
-            value: `Количество`
-        };
-        const columns = Object.keys(legend);
-        const table = this.element.select(`table`);
+        // const legend = {
+        //     title: `Название`,
+        //     value: `Количество`
+        // };
+        // const columns = Object.keys(legend);
+        // const table = this.element.select(`table`);
 
         // table.select(`thead`)
         //     .append(`tr`)
@@ -120,62 +113,72 @@ export class D3Service {
         //     console.log(`sort by title`);
         // });
 
-        const values = data.map((it) => it.value);
-        const tr = table.selectAll(`tr`);
-        console.log(tr);
-
-        for (let i = 0; i < data.length; i++) {
-            const className = `.${data[i].id}`;
-
-            const polygon = this.svg.select(`#${data[i].id}`);
-            const j = (data[i].value / (Math.max(...values)) * length);
-
-            tr.style(`cursor`, `pointer`)
-                .on(`mouseover`, function () {
-                    d3.select(this).style(`font-weight`, `bold`);
-                    polygon.style(`stroke`, `#999999`);
-                })
-                .on(`mouseout`, function () {
-                    d3.select(this).style(`font-weight`, `normal`);
-                    polygon.style(`stroke`, `#F0F1F5`);
-                });
-
-            polygon.style(`fill`, this.scale(j))
-                .style(`cursor`, `pointer`)
-                .on(`click`, () => {
-                    this.selectDetector.next(data[i]);
-                })
-                .on(`mouseover`, function() {
-                    d3.select(this).style(`stroke`, `#999999`);
-                    tr.style(`font-weight`, `bold`);
-                })
-                .on(`mouseout`, function () {
-                    d3.select(this).style(`stroke`, `#F0F1F5`);
-                    tr.style(`font-weight`, `normal`);
-                });
-
-            tr.append(`td`)
-                .append(`div`)
-                .style(`width`, `140px`)
-                .style(`height`, `20px`)
-                .style(`display`, `flex`)
-                .style(`justify-content`, `flex-end`)
-                .append(`div`)
-                .style(`width`, `${Math.round(j * 10)}%`)
-                .style(`background-color`, this.scale(j))
-                .style(`text-align`, `right`)
-                .text(data[i].value);
-
-            tr.append(`td`)
-                .text(data[i].title);
-        }
+        // const values = data.map((it) => it.value);
+        // const tr = table.selectAll(`tr`);
+        //
+        // tr.select(`.item`).select(`div`).style(``).style(`width`, `${Math.round(j * 10)}%`)
+        //     .style(`background-color`, this.scale(j))
+        //     .style(`text-align`, `right`)
+        //
+        //
+        // for (let i = 0; i < data.length; i++) {
+        //     const className = `.${data[i].id}`;
+        //
+        //     const polygon = this.svg.select(`#${data[i].id}`);
+        //     const j = (data[i].value / (Math.max(...values)) * length);
+        //
+        //     tr.style(`cursor`, `pointer`)
+        //         .on(`mouseover`, function () {
+        //             d3.select(this).style(`font-weight`, `bold`);
+        //             polygon.style(`stroke`, `#999999`);
+        //         })
+        //         .on(`mouseout`, function () {
+        //             d3.select(this).style(`font-weight`, `normal`);
+        //             polygon.style(`stroke`, `#F0F1F5`);
+        //         });
+        //
+        //     polygon.style(`fill`, this.scale(j))
+        //         .style(`cursor`, `pointer`)
+        //         .on(`click`, () => {
+        //             this.selectDetector.next(data[i]);
+        //         })
+        //         .on(`mouseover`, function() {
+        //             d3.select(this).style(`stroke`, `#999999`);
+        //             tr.style(`font-weight`, `bold`);
+        //         })
+        //         .on(`mouseout`, function () {
+        //             d3.select(this).style(`stroke`, `#F0F1F5`);
+        //             tr.style(`font-weight`, `normal`);
+        //         });
+        //
+        //     tr.append(`td`)
+        //         .append(`div`)
+        //         .style(`width`, `140px`)
+        //         .style(`height`, `20px`)
+        //         .style(`display`, `flex`)
+        //         .style(`justify-content`, `flex-end`)
+        //         .append(`div`)
+        //         .style(`width`, `${Math.round(j * 10)}%`)
+        //         .style(`background-color`, this.scale(j))
+        //         .style(`text-align`, `right`)
+        //         .text(data[i].value);
+        //
+        //     tr.append(`td`)
+        //         .text(data[i].title);
+        // }
     }
 
-    private sort(a, b) {
-        if (this.sortByTitle) {
-            return this.isAsc ? a.title > b.title ? 1 : -1 : a.title < b.title ? 1 : -1;
-        } else {
-            return this.isAsc ? a.value - b.value : b.value - a.value;
-        }
+    public setSvg(element: any, svg: string) {
+        this.element = d3.select(element);
+        d3.xml(svg)
+            .mimeType(`image/svg+xml`)
+            .get((error, file) => {
+                if (error) {
+                    throw error;
+                }
+                this.svg = d3.select(this.element.select(`.container`)
+                    .node()
+                    .appendChild(file.documentElement));
+            });
     }
 }
