@@ -10,7 +10,7 @@ import {IHeatmapOptions} from './heatmap/heatmap.component';
 export class AppComponent {
     svg = `<svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 490.5 436.7" style="enable-background:new 0 0 490.5 436.7;" xml:space="preserve"><style type="text/css">
   path,polygon{fill:#999999;}	
-  .st0{stroke-width:0.9921;stroke-linecap:round;stroke-linejoin:round;}
+  .st0{stroke:#F0F1F5;stroke-width:0.9921;stroke-linecap:round;stroke-linejoin:round;}
   .st1{stroke:#F0F1F5;stroke-width:0.9921;stroke-linecap:round;stroke-linejoin:round;}
   .st2{stroke:#F0F1F5;stroke-width:0.9921;stroke-linecap:round;stroke-linejoin:round;}
   .st3{stroke:#F0F1F5;stroke-width:0.9921;stroke-linecap:round;stroke-linejoin:round;}
@@ -140,8 +140,8 @@ export class AppComponent {
 	/>
 </svg>`;
 
-    // public colors: string[] = ['#407bd8', '#5fe29f'];
-    public colors: string[] = ['black', 'white'];
+    public colors: string[] = ['#407bd8', '#5fe29f'];
+    // public colors: string[] = ['yellow', 'orange', 'red'];
 
     public data: IHeatmapOptions[] = [
         {

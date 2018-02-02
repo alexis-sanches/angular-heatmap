@@ -7,6 +7,8 @@ export class D3Service {
     private element: any;
     private svg: any;
     private scale: any;
+    private sortByTitle = true;
+    private isAsc = true;
     public selectDetector: EventEmitter<IHeatmapOptions> = new EventEmitter();
 
     /**
@@ -17,8 +19,8 @@ export class D3Service {
      */
 
     public init(options: any, element: any, length: number = 10) {
-        this.element = d3.select(element).append(`div`).attr(`style`, `display: flex; align-items: flex-start`);
-        this.svg = this.element.html(options.svg).select(`svg`).attr(`width`, `70%`);
+        this.element = d3.select(element).select(`.heatmap`);
+        this.svg = this.element.select(`.container`).html(options.svg).select(`svg`);
 
         this.createScale(options.colors, length);
         this.setData(options.data);
@@ -78,32 +80,102 @@ export class D3Service {
      */
 
     public setData(data: IHeatmapOptions[], length: number = 10) {
-        const table = this.element.append(`table`).attr(`style`, `margin-left: 40px; border-spacing: 15px 10px`);
-        const values = data.map((it) => it.value);
-        const th = table.append(`tr`);
+        const legend = {
+            title: `Название`,
+            value: `Количество`
+        };
+        const columns = Object.keys(legend);
+        const table = this.element.select(`table`);
 
-        th.append(`th`).text(`Количество`);
-        th.append(`th`).text(`Название`);
+        // table.select(`thead`)
+        //     .append(`tr`)
+        //     .selectAll(`th`)
+        //     .data(columns)
+        //     .enter()
+        //     .append(`th`)
+        //     .text((column) => legend[column]).on(`click`, () => {
+        //         data.sort((a, b) => Math.pow(-1, Math.round(Math.random()) + 1) *  (a.value - b.value));
+        //     });
+        //
+        // const rows = table.select(`tbody`)
+        //     .selectAll(`tr`)
+        //     .data(data)
+        //     .enter()
+        //     .append(`tr`);
+        //
+        // const cells = rows.selectAll(`td`)
+        //     .data((row) =>
+        //         columns.map((column) =>
+        //             ({column, value: row[column]})))
+        //     .enter()
+        //     .append(`td`)
+        //     .text((d) => d.value);
+
+        // const th = table.select(`tr`);
+        // th.append(`th`).text(`Количество`).on(`click`, () => {
+        //     data.sort((a, b) => d3.ascending(a.value, b.value));
+        //     console.log(data);
+        // });
+        // th.append(`th`).text(`Название`).on(`click`, () => {
+        //     console.log(`sort by title`);
+        // });
+
+        const values = data.map((it) => it.value);
+        const tr = table.selectAll(`tr`);
+        console.log(tr);
 
         for (let i = 0; i < data.length; i++) {
-            const tr = table.append(`tr`);
+            const className = `.${data[i].id}`;
+
+            const polygon = this.svg.select(`#${data[i].id}`);
             const j = (data[i].value / (Math.max(...values)) * length);
 
-            this.svg.select(`#${data[i].id}`)
-                .attr(`style`, `fill: ${this.scale(j)}`)
+            tr.style(`cursor`, `pointer`)
+                .on(`mouseover`, function () {
+                    d3.select(this).style(`font-weight`, `bold`);
+                    polygon.style(`stroke`, `#999999`);
+                })
+                .on(`mouseout`, function () {
+                    d3.select(this).style(`font-weight`, `normal`);
+                    polygon.style(`stroke`, `#F0F1F5`);
+                });
+
+            polygon.style(`fill`, this.scale(j))
+                .style(`cursor`, `pointer`)
                 .on(`click`, () => {
                     this.selectDetector.next(data[i]);
+                })
+                .on(`mouseover`, function() {
+                    d3.select(this).style(`stroke`, `#999999`);
+                    tr.style(`font-weight`, `bold`);
+                })
+                .on(`mouseout`, function () {
+                    d3.select(this).style(`stroke`, `#F0F1F5`);
+                    tr.style(`font-weight`, `normal`);
                 });
 
             tr.append(`td`)
                 .append(`div`)
-                .attr(`style`, `width: 140px; height: 20px; display: flex; justify-content: flex-end;`)
+                .style(`width`, `140px`)
+                .style(`height`, `20px`)
+                .style(`display`, `flex`)
+                .style(`justify-content`, `flex-end`)
                 .append(`div`)
-                .attr(`style`, `width: ${Math.round(j * 10)}%; background-color: ${this.scale(j)}; text-align: right;`)
+                .style(`width`, `${Math.round(j * 10)}%`)
+                .style(`background-color`, this.scale(j))
+                .style(`text-align`, `right`)
                 .text(data[i].value);
 
             tr.append(`td`)
                 .text(data[i].title);
+        }
+    }
+
+    private sort(a, b) {
+        if (this.sortByTitle) {
+            return this.isAsc ? a.title > b.title ? 1 : -1 : a.title < b.title ? 1 : -1;
+        } else {
+            return this.isAsc ? a.value - b.value : b.value - a.value;
         }
     }
 }

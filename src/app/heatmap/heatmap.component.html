@@ -1,1 +1,18 @@
+<div class="heatmap">
+    <div class="container"></div>
+    <table>
+        <tr>
+            <th>Название</th>
+            <th>Количество</th>
+        </tr>
 
+        <tr [attr.class]="item.id" *ngFor="let item of _options.data">
+            <td>{{ item.title }}</td>
+            <td>
+                <div class="item">
+                    {{ item.value }}
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>

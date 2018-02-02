@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, Output} from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, ElementRef, EventEmitter, Input, Output} from '@angular/core';
 import {D3Service} from '../d3.service';
 
 export interface IHeatmapOptions {
@@ -12,16 +12,13 @@ export interface IHeatmapOptions {
     templateUrl: './heatmap.component.html',
     styleUrls: ['./heatmap.component.less']
 })
-export class HeatmapComponent {
-    private _svg: string;
-    private _colors: string[];
-    private _data: IHeatmapOptions[];
-    private scale;
+export class HeatmapComponent implements AfterViewInit {
+    public _options;
 
     @Input()
-    set options(options: any) {
+    set options(options: object) {
         if (options) {
-            this.d3.init(options, this.el.nativeElement);
+            this._options = options;
         }
     }
 
@@ -33,5 +30,9 @@ export class HeatmapComponent {
         d3.selectDetector.subscribe((res) => {
             this.select.emit(res);
         });
+    }
+
+    ngAfterViewInit() {
+        this.d3.init(this._options, this.el.nativeElement);
     }
 }
