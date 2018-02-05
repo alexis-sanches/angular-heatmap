@@ -10,6 +10,7 @@ export class D3Service {
     private sortByTitle = true;
     private isAsc = true;
     public selectDetector: EventEmitter<IHeatmapOptions> = new EventEmitter();
+    public svgAppendDetector: EventEmitter<any> = new EventEmitter();
 
     /**
      *
@@ -168,17 +169,55 @@ export class D3Service {
         // }
     }
 
-    public setSvg(element: any, svg: string) {
+    public setSvg(element: any, svg: string): void {
         this.element = d3.select(element);
         d3.xml(svg)
             .mimeType(`image/svg+xml`)
             .get((error, file) => {
                 if (error) {
+                    this.svgAppendDetector.next(error);
                     throw error;
                 }
                 this.svg = d3.select(this.element.select(`.container`)
                     .node()
                     .appendChild(file.documentElement));
+                this.svgAppendDetector.next(true);
             });
+    }
+
+    public setColors(data: IHeatmapOptions[], length: number = 10): void {
+        for (let i = 0; i < data.length; i += 1) {
+            const polygon = this.svg.select(`#svg_${data[i].id}`);
+            const tr = this.element.select(`#row_${data[i].id}`);
+            const j = (data[i].value / (Math.max(...data.map((it) => it.value))) * length);
+
+            tr.style(`cursor`, `pointer`)
+                .on(`mouseover`, function () {
+                    d3.select(this).style(`font-weight`, `bold`);
+                    polygon.style(`stroke`, `#999999`);
+                })
+                .on(`mouseout`, function () {
+                    d3.select(this).style(`font-weight`, `normal`);
+                    polygon.style(`stroke`, `#F0F1F5`);
+                });
+
+            polygon.style(`fill`, this.scale(j))
+                .style(`cursor`, `pointer`)
+                .on(`click`, () => {
+                    this.selectDetector.next(data[i]);
+                })
+                .on(`mouseover`, function() {
+                    d3.select(this).style(`stroke`, `#999999`);
+                    tr.style(`font-weight`, `bold`);
+                })
+                .on(`mouseout`, function () {
+                    d3.select(this).style(`stroke`, `#F0F1F5`);
+                    tr.style(`font-weight`, `normal`);
+                });
+
+            tr.select(`.value`)
+                .style(`width`, `${Math.round(j * 10)}%`)
+                .style(`background-color`, this.scale(j));
+        }
     }
 }

@@ -2,15 +2,17 @@
     <div class="container"></div>
     <table>
         <tr>
-            <th>Название</th>
-            <th>Количество</th>
+            <th (click)="onSort()">Название</th>
+            <th (click)="onSort('value')">Количество</th>
         </tr>
 
-        <tr [attr.class]="'row_' + item.id" *ngFor="let item of _data">
+        <tr [attr.id]="'row_' + item.id" *ngFor="let item of _data">
             <td>{{ item.title }}</td>
             <td>
                 <div class="item">
-                    {{ item.value }}
+                    <div class="value">
+                        {{ item.value }}
+                    </div>
                 </div>
             </td>
         </tr>

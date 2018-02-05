@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {D3Service} from './d3.service';
 import {IHeatmapOptions} from './heatmap/heatmap.component';
 
@@ -7,7 +7,7 @@ import {IHeatmapOptions} from './heatmap/heatmap.component';
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.less']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
     svg = `assets/map.svg`;
 
     public colors: string[] = ['#407bd8', '#5fe29f'];
@@ -106,11 +106,13 @@ export class AppComponent {
         },
     ];
 
-    public options = {
-        data: this.data,
-        colors: this.colors,
-        svg: this.svg
-    };
+    // public data: IHeatmapOptions[];
+
+    ngOnInit(): void {
+        // setTimeout(() => {
+        //     this.data = this._data;
+        // }, 1000);
+    }
 
     onSelect(evt) {
         console.log(evt);
