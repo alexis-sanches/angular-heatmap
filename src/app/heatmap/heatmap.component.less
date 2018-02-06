@@ -2,15 +2,26 @@
     display: flex;
     justify-content: space-between;
     align-items: stretch;
+    min-height: 559px;
 
     .container {
+        display: flex;
+        align-items: stretch;
         width: 100%;
+
+        svg {
+            width: 100%;
+        }
     }
 }
 
 table {
-    margin-left: 40px;
-    border-spacing: 15px 10px;
+    min-width: 280px;
+    border-spacing: 0 8px;
+
+    th {
+        cursor: pointer;
+    }
 
     td {
         &:last-child {

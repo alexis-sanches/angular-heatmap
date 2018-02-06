@@ -1,24 +1,18 @@
-import {
-    AfterContentInit, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy,
-    Output
-} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output} from '@angular/core';
 import {D3Service} from '../d3.service';
-
-export interface IHeatmapOptions {
-    id: string;
-    title: string;
-    value: number;
-}
+import {InterfaceHeatmap} from '../interfaces/InterfaceHeatmap';
 
 @Component({
     selector: 'app-heatmap',
     templateUrl: './heatmap.component.html',
     styleUrls: ['./heatmap.component.less']
 })
-export class HeatmapComponent implements OnDestroy {
-    public _data;
-    public _svg;
-    private _colors: string[];
+export class HeatmapComponent implements OnDestroy, OnChanges {
+    public hoveredId = ``;
+    public _data: InterfaceHeatmap[];
+    public scale: any;
+
+    private _length = 10;
     private isAsc = false;
     private selectSub;
     private svgSub;
@@ -26,39 +20,51 @@ export class HeatmapComponent implements OnDestroy {
     @Input()
     set svg(svg: string) {
         if (svg) {
-            this._svg = svg;
             this.d3.setSvg(this.el.nativeElement, svg);
+        }
+    }
+
+    @Input()
+    set length(length: number) {
+        if (length) {
+            this._length = length;
         }
     }
 
     @Input()
     set colors(colors: string[]) {
         if (colors) {
-            this._colors = colors;
+            this.scale = D3Service.createScale(colors);
         }
     }
 
     @Input()
-    set data(data: IHeatmapOptions[]) {
+    set data(data: any[]) {
         if (data) {
-            this._data = data;
-            if (this.d3.svg) {
-                if (this._colors) {
-                    this.d3.createScale(this._colors);
-                    this.d3.setColors(this._data);
-                }
-            } else {
-                this.onDataRetrieval();
-            }
+            this._data = data.map((it, i, arr) => {
+                const basis = it.value * this._length / Math.max(...arr.map((item) =>
+                    item.value));
+                it.width = `${Math.round(basis * 10)}%`;
+                it.background = this.scale(basis);
+                return it;
+            });
         }
     }
 
+    @Output() select: EventEmitter<InterfaceHeatmap> = new EventEmitter();
 
-    @Output() select: EventEmitter<IHeatmapOptions> = new EventEmitter();
+    constructor(
+        private d3: D3Service,
+        private el: ElementRef,
+    ) {
+        this.svgSub = this.d3.svgAppendDetector.subscribe((res) => {
+            if (res && typeof res === `boolean`) {
+                if (this.scale) {
+                    d3.appendScale(this.scale);
+                }
+            }
+        });
 
-    @Output() sort: EventEmitter<string> = new EventEmitter();
-
-    constructor(private d3: D3Service, private el: ElementRef) {
         this.selectSub = d3.selectDetector.subscribe((res) => {
             this.select.emit(res);
         });
@@ -74,21 +80,16 @@ export class HeatmapComponent implements OnDestroy {
         }
     }
 
-    public onDataRetrieval(): void {
-        this.svgSub = this.d3.svgAppendDetector.subscribe((res) => {
-            if (res && typeof res === `boolean`) {
-                if (this._data && this._colors) {
-                    this.d3.createScale(this._colors);
-                    this.d3.setColors(this._data);
-                }
-            }
-        });
+    ngOnChanges(): void {
+        console.log(`aaa`);
+        if (this._data) {
+            this.d3.setColors(this._data, this.scale);
+        }
     }
 
     public onSort(sortingField: string = `title`): void {
         this.isAsc = !this.isAsc;
-        this._data.sort((a: IHeatmapOptions, b: IHeatmapOptions) =>
+        this._data.sort((a: InterfaceHeatmap, b: InterfaceHeatmap) =>
             (this.isAsc ? 1 : -1) * (a[sortingField] > b[sortingField] ? 1 : -1));
-        this.d3.setData(this._data);
     }
 }

@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {D3Service} from './d3.service';
-import {IHeatmapOptions} from './heatmap/heatmap.component';
+import {InterfaceHeatmap} from './interfaces/InterfaceHeatmap';
 
 @Component({
     selector: 'app-root',
@@ -13,7 +12,7 @@ export class AppComponent implements OnInit {
     public colors: string[] = ['#407bd8', '#5fe29f'];
     // public colors: string[] = ['yellow', 'orange', 'red'];
 
-    public data: IHeatmapOptions[] = [
+    public _data: InterfaceHeatmap[] = [
         {
             id: `adm`,
             title: `Адмиралтейский`,
@@ -105,13 +104,18 @@ export class AppComponent implements OnInit {
             value: 130,
         },
     ];
-
-    // public data: IHeatmapOptions[];
+    public data: InterfaceHeatmap[] = [];
 
     ngOnInit(): void {
-        // setTimeout(() => {
-        //     this.data = this._data;
-        // }, 1000);
+        setTimeout(() => {
+            this.data = this._data;
+        }, 1000);
+        setTimeout(() => {
+            this.data = this._data.map((it) => {
+                it.value = (Math.round(it.value * Math.random()));
+                return it;
+            });
+        }, 3000);
     }
 
     onSelect(evt) {
