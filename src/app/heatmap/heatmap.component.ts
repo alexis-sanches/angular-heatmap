@@ -81,7 +81,6 @@ export class HeatmapComponent implements OnDestroy, OnChanges {
     }
 
     ngOnChanges(): void {
-        console.log(`aaa`);
         if (this._data) {
             this.d3.setColors(this._data, this.scale);
         }
